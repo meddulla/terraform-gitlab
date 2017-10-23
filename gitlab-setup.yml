@@ -1,0 +1,55 @@
+- name: Initialize gitlab
+  vars_files: 
+    - "group_vars/all.yml"
+  hosts: gitlab:&{{ resource_group }}
+  become: yes
+  tags: gitlab
+  tasks:
+    - name: update apt
+      shell: apt-get update
+    #- name: upgrade 
+    #  shell: apt-get upgrade -y
+    
+    # DEPS
+    - name: Install deps
+      apt: package={{ item }} state=installed force=yes update_cache=yes cache_valid_time=3600
+      with_items:
+        - python-apt
+        - ca-certificates
+        - curl
+        - git
+        - openssh-server
+
+    # Postfix - handle dynamic conf
+    # TODO
+    - name: Set Postfix option hostname
+      debconf: name=postifx question="postfix/mailname" value="{{ansible_fqdn}}" vtype="string"
+
+    - name: Set Postfix option type as internet site
+      debconf: name=postfix question="postfix/main_mailer_type" value="'Internet Site'" vtype="string"
+
+    - name: Install Postfix
+      apt: package={{ item }} state=installed force=yes update_cache=yes cache_valid_time=3600
+      with_items:
+        - postfix
+        - mailutils
+
+    # gitlab itself
+    - name: get installer
+      shell: curl -LO https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
+    - name: set executable 
+      file: 
+        path: ./script.deb.sh
+        mode: +x
+    - name: set up repos 
+      shell: ./script.deb.sh
+    - name: install community edition
+      shell: apt-get install gitlab-ce 
+    
+    - name: Create gitlab config 
+      shell: echo "external_url 'http://{{gitlab_fqdn}}'" > /etc/gitlab/gitlab.rb
+    
+    - name: reconfigure gitlab  
+      shell: gitlab-ctl reconfigure
+
+

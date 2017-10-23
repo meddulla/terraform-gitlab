@@ -1,0 +1,25 @@
+- name: Initialize gitlab runner
+  vars_files: 
+    - "group_vars/all.yml"
+  hosts: gitlabci:gitlabtrf
+  become: yes
+  tags: gitlab-ci
+  tasks:
+    - name: update apt
+      shell: apt-get update
+    #- name: upgrade 
+    #  shell: apt-get upgrade -y
+    - name: add gitlab's official repo
+      shell: curl -LO https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh
+    - name: set executable 
+      file: 
+        path: ./script.deb.sh
+        mode: +x
+    - name: set up repos 
+      shell: ./script.deb.sh
+    - name: install runner
+      shell: apt-get install gitlab-runner
+    - name: install docker for docker registry
+      shell: apt-get install docker
+    #- debug:
+    #  msg: "Now go resgister the runner. See https://docs.gitlab.com/runner/register/index.html"
