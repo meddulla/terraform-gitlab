@@ -2,4 +2,3 @@ resource_group: gitlabtrf
 ansible_ssh_user: sofia
 region: westeurope
 gitlab_fqdn: "{{ resource_group}}-gitlab1.{{ region }}.cloudapp.azure.com"
-service_ip_range: 10.3.0.0/24

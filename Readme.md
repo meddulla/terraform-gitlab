@@ -24,7 +24,7 @@ Create inventory.yml and setup the correct hosts. Check group_vars/all (eg. reso
 
     ansible -i azure-rm.py gitlab-setup.yml
 
-Go to gitlab1, change username, email and add ssh key. 
+Go to gitlab1, change username, email and add ssh key in gitlab web admin. 
 
 
 #### Gitlab runner
